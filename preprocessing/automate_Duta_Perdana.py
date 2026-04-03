@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
-
+# update final
 def preprocess_risk_data(input_csv_path, output_dir):
     """
     Melakukan data preprocessing otomatis untuk dataset Risiko Kesehatan.
