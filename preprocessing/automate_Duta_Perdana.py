@@ -40,21 +40,29 @@ def preprocess_risk_data(input_csv_path, output_dir):
     X = df.drop(columns='Status_Resiko')
     y = df['Status_Resiko']
     
-    # 6. Scaling Data Numerik (StandardScaler)
+     # 6. Scaling Data Numerik tanpa Data Leakage
+    numerical_features = X.columns
 
-    numerical_features = X.columns # Semua kolom adalah numerik
-    
+    # Lakukan Split Data terlebih dahulu
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
     # Inisialisasi Scaler
     scaler = StandardScaler()
-    
-    # Terapkan Scaling ke seluruh fitur
-    X_scaled = scaler.fit_transform(X)
-    
-    # Konversi kembali ke DataFrame
-    X_processed_df = pd.DataFrame(X_scaled, columns=numerical_features, index=X.index)
 
-    # 7. Satukan kembali hasilnya (Fitur + Target)
-    processed_df = pd.concat([X_processed_df, y], axis=1)
+    # Fit & Transform pada X_train, dan HANYA Transform pada X_test
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Konversi kembali ke DataFrame
+    X_train_df = pd.DataFrame(X_train_scaled, columns=numerical_features, index=X_train.index)
+    X_test_df = pd.DataFrame(X_test_scaled, columns=numerical_features, index=X_test.index)
+
+    # Gabungkan kembali Fitur dan Target
+    X_processed_df = pd.concat([X_train_df, X_test_df])
+    y_combined = pd.concat([y_train, y_test])
+
+    # 7. Satukan kembali hasilnya
+    processed_df = pd.concat([X_processed_df, y_combined], axis=1)
 
     # 8. Save hasil preprocessing
     output_file_name = "preprocessed_data.csv"
@@ -75,8 +83,8 @@ if __name__ == "__main__":
     # Asumsi: File CSV mentah berada di 'namadataset_raw/raw_data.csv'
     # Asumsi: Data hasil preprocessing akan disimpan di 'preprocessing/namadataset_preprocessing/'
     
-    input_data_path = "dataset_raw/data_lansia.csv"
-    output_folder_path = "preprocessing/dataset_preprocessing"
+    input_data_path = "../dataset_raw/data_lansia.csv"
+    output_folder_path = "dataset_preprocessing"
 
     preprocess_risk_data(
         input_csv_path=input_data_path,
